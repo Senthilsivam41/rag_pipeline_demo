@@ -144,8 +144,7 @@ The app will open in your browser at **`http://localhost:8501`**
 ```
 rag_pipelines/
 ├── app.py                    # Main Streamlit app (LOCAL RAG with Ollama)
-├── chatwithpdf.py            # Alternative: Cloud-based RAG (OpenAI)
-├── main.py                   # Utility functions or main entry point
+├── main.py                   # Placeholder/template (not currently used)
 ├── pyproject.toml            # Project dependencies
 ├── README.md                 # This file
 └── .venv/                    # Virtual environment (created after setup)
@@ -157,12 +156,7 @@ rag_pipelines/
   - Uses Ollama for LLM (local, free)
   - Uses HuggingFace embeddings (local, free)
   - No API keys required
-
-- **`chatwithpdf.py`** — Alternative implementation
-  - Uses OpenAI for LLM and embeddings
-  - Requires OpenAI API key
-  - Better quality but costs money
-  - Not used by default
+  - **This is the only active application**
 
 ---
 
