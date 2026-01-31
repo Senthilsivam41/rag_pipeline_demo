@@ -1,5 +1,10 @@
+"""Local RAG (Retrieval-Augmented Generation) application using Ollama and HuggingFace.
+
+This Streamlit app allows users to upload PDFs and ask questions using a local,
+privacy-preserving RAG pipeline powered by Ollama LLM and HuggingFace embeddings.
+"""
+
 import streamlit as st
-import os
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
@@ -15,21 +20,29 @@ st.title("🔒 100% Private Local RAG")
 st.markdown("All data stays on your machine. Powered by Ollama + HuggingFace.")
 
 # --- Logic: Process PDF ---
-@st.cache_resource # Cache so it doesn't re-embed every time you ask a question
+@st.cache_resource  # Cache so it doesn't re-embed every time you ask a question
 def process_pdf_local(file):
+    """Load and process a PDF file into a searchable vector store.
+
+    Args:
+        file: Uploaded file object from Streamlit
+
+    Returns:
+        Retriever object for searching the document
+    """
     with open("temp.pdf", "wb") as f:
         f.write(file.getbuffer())
-    
+
     loader = PyPDFLoader("temp.pdf")
     docs = loader.load()
-    
+
     # Split into chunks
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
     splits = text_splitter.split_documents(docs)
-    
+
     # Use FREE local embeddings (Runs on your CPU)
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    
+
     # Create Local Vector Store
     vectorstore = FAISS.from_documents(documents=splits, embedding=embeddings)
     return vectorstore.as_retriever()
@@ -45,15 +58,15 @@ if uploaded_file:
     if "rag_chain" not in st.session_state:
         with st.spinner("Indexing PDF locally..."):
             retriever = process_pdf_local(uploaded_file)
-            
+
             # Use Local Ollama LLM
             llm = ChatOllama(model="llama3.2:1b", temperature=0)
-            
-            system_prompt = "Answer based ONLY on the context: {context}"
+
+            system_message = "Answer based ONLY on the context: {context}"
             prompt_template = ChatPromptTemplate.from_messages([
-                ("system", system_prompt), ("human", "{input}")
+                ("system", system_message), ("human", "{input}")
             ])
-            
+
             qa_chain = create_stuff_documents_chain(llm, prompt_template)
             st.session_state.rag_chain = create_retrieval_chain(retriever, qa_chain)
 
@@ -72,11 +85,13 @@ if uploaded_file:
         with st.chat_message("assistant"):
             res = st.session_state.rag_chain.invoke({"input": user_input})
             answer = res["answer"]
-            
+
             # Show Citations
             pages = {str(doc.metadata.get("page", 0) + 1) for doc in res["context"]}
-            citation = f"\n\n📍 **Sources:** Pages " + ", ".join(sorted(pages))
-            
+            citation = "\n\n📍 **Sources:** Pages " + ", ".join(sorted(pages))
+
             st.markdown(answer)
             st.caption(citation)
-            st.session_state.messages.append({"role": "assistant", "content": answer + citation})
+            st.session_state.messages.append(
+                {"role": "assistant", "content": answer + citation}
+            )
