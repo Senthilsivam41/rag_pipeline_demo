@@ -3,6 +3,7 @@
 This Streamlit app allows users to upload PDFs and ask questions using a local,
 privacy-preserving RAG pipeline powered by Ollama LLM and HuggingFace embeddings.
 """
+# pylint: disable=import-error
 
 import streamlit as st
 from langchain_ollama import ChatOllama
@@ -62,6 +63,7 @@ if uploaded_file:
             # Use Local Ollama LLM
             llm = ChatOllama(model="llama3.2:1b", temperature=0)
 
+            # pylint: disable=invalid-name
             system_message = "Answer based ONLY on the context: {context}"
             prompt_template = ChatPromptTemplate.from_messages([
                 ("system", system_message), ("human", "{input}")
@@ -87,6 +89,7 @@ if uploaded_file:
             answer = res["answer"]
 
             # Show Citations
+            # pylint: disable=invalid-name
             pages = {str(doc.metadata.get("page", 0) + 1) for doc in res["context"]}
             citation = "\n\n📍 **Sources:** Pages " + ", ".join(sorted(pages))
 
