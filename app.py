@@ -5,7 +5,11 @@ privacy-preserving RAG pipeline powered by Ollama LLM and HuggingFace embeddings
 """
 # pylint: disable=import-error
 
+import warnings
 import streamlit as st
+
+# Suppress Pydantic V1 compatibility warning with Python 3.14
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
