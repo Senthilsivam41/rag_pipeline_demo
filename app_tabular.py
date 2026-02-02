@@ -21,6 +21,21 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
 
 from data_loader import DataLoader
+from shared_ui import (
+    display_data_summary,
+    display_column_selector,
+    display_filter_section,
+    display_chat_history,
+    display_user_message,
+    display_assistant_response,
+)
+from shared_ui import (
+    display_data_summary,
+    display_column_selector,
+    display_filter_section,
+    display_chat_history,
+    display_assistant_response,
+)
 
 # --- Page Config ---
 st.set_page_config(page_title="Local Private RAG", page_icon="🔒", layout="wide")
@@ -86,54 +101,20 @@ def process_tabular_data(file):
         DataLoader.preview_data(dataframe)
     with col2:
         summary = DataLoader.get_data_summary(dataframe)
-        st.subheader("📈 Data Summary")
-        st.metric("Rows", summary["rows"])
-        st.metric("Columns", summary["columns"])
-        st.metric("Memory (MB)", f"{summary['memory_mb']:.2f}")
+        display_data_summary(dataframe, summary)
 
     # Column selection
-    st.subheader("🎯 Select Columns for Indexing")
     all_columns = DataLoader.get_columns(dataframe)
-    selected_columns = st.multiselect(
-        "Choose columns to include in RAG (leave empty for all):",
-        all_columns,
-        default=all_columns,
-        key="column_selector"
-    )
+    selected_columns = display_column_selector(all_columns)
     dataframe = DataLoader.select_columns(dataframe, selected_columns)
 
     # Pre-index filtering
-    with st.expander("🔍 Optional: Filter Data Before Indexing"):
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            filter_column = st.selectbox(
-                "Column to filter:",
-                DataLoader.get_columns(dataframe),
-                key="filter_column"
-            )
-        with col2:
-            operator = st.selectbox(
-                "Operator:",
-                ["==", ">", "<", ">=", "<=", "!="],
-                key="filter_operator"
-            )
-        with col3:
-            filter_value = st.text_input(
-                "Value:",
-                key="filter_value"
-            )
-
-        if st.button("Apply Filter"):
-            try:
-                filter_config = {
-                    "column": filter_column,
-                    "operator": operator,
-                    "value": filter_value
-                }
-                dataframe = DataLoader.apply_filter(dataframe, filter_config)
-                st.success(f"✅ Filtered to {len(dataframe)} rows")
-            except ValueError as e:
-                st.error(str(e))
+    dataframe = display_filter_section(
+        dataframe,
+        DataLoader.get_columns,
+        DataLoader.apply_filter
+    )
+    st.success(f"✅ Filtered to {len(dataframe)} rows")
 
     # Create table-aware chunks and build vector store
     st.info(f"📍 Indexing {len(dataframe)} rows...")
@@ -213,15 +194,12 @@ if uploaded_file:
         st.session_state.messages = []
 
     # Display previous chat history
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    display_chat_history(st.session_state.messages)
 
     # Chat input
     if user_input := st.chat_input("Ask about your data"):
         st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
+        display_user_message(user_input)
 
         with st.chat_message("assistant"):
             res = st.session_state.rag_chain.invoke({"input": user_input})
@@ -232,8 +210,7 @@ if uploaded_file:
             pages = {str(doc.metadata.get("page", 0) + 1) for doc in res["context"]}
             citation = "\n\n📍 **Sources:** Pages " + ", ".join(sorted(pages))
 
-            st.markdown(answer)
-            st.caption(citation)
+            display_assistant_response(answer, citation)
             st.session_state.messages.append(
                 {"role": "assistant", "content": answer + citation}
             )

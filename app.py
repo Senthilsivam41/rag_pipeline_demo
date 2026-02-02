@@ -19,6 +19,8 @@ from langchain_classic.chains.retrieval import create_retrieval_chain
 from langchain_classic.chains.combine_documents.stuff import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
+from shared_ui import display_chat_history, display_user_message, display_assistant_response
+
 # --- Page Config ---
 st.set_page_config(page_title="Local Private RAG", page_icon="🔒")
 st.title("🔒 100% Private Local RAG")
@@ -79,14 +81,11 @@ if uploaded_file:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    display_chat_history(st.session_state.messages)
 
     if user_input := st.chat_input("Ask about your PDF"):
         st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message("user"):
-            st.markdown(user_input)
+        display_user_message(user_input)
 
         with st.chat_message("assistant"):
             res = st.session_state.rag_chain.invoke({"input": user_input})
@@ -97,8 +96,7 @@ if uploaded_file:
             pages = {str(doc.metadata.get("page", 0) + 1) for doc in res["context"]}
             citation = "\n\n📍 **Sources:** Pages " + ", ".join(sorted(pages))
 
-            st.markdown(answer)
-            st.caption(citation)
+            display_assistant_response(answer, citation)
             st.session_state.messages.append(
                 {"role": "assistant", "content": answer + citation}
             )

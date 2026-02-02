@@ -19,11 +19,12 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.ollama import Ollama
 
+from shared_validation import validate_file, PREVIEW_ROWS
+
 # Constants
 MAX_FILE_SIZE_BYTES = 200 * 1024 * 1024  # 200 MB
 SUPPORTED_FORMATS = {".csv", ".parquet", ".pq", ".pdf"}
 CSV_DELIMITER = ","
-PREVIEW_ROWS = 5
 INDEX_STORAGE_DIR = "./llamaindex_storage"
 
 
@@ -43,46 +44,7 @@ class LlamaIndexDataLoader:
         Raises:
             ValueError: If file is invalid with descriptive message
         """
-        # Check file extension
-        file_ext = os.path.splitext(uploaded_file.name)[1].lower()
-        if file_ext not in SUPPORTED_FORMATS:
-            raise ValueError(
-                f"❌ Unsupported format: {file_ext}. "
-                f"Supported: {', '.join(SUPPORTED_FORMATS)}"
-            )
-
-        # Check file size
-        file_size = len(uploaded_file.getbuffer())
-        if file_size > MAX_FILE_SIZE_BYTES:
-            size_mb = file_size / (1024 * 1024)
-            raise ValueError(
-                f"❌ File too large: {size_mb:.1f} MB. "
-                f"Maximum: {MAX_FILE_SIZE_BYTES / (1024 * 1024):.0f} MB"
-            )
-
-        # For CSV, validate delimiter on first few lines
-        if file_ext == ".csv":
-            try:
-                uploaded_file.seek(0)
-                first_line = uploaded_file.readline().decode("utf-8")
-                if CSV_DELIMITER not in first_line:
-                    raise ValueError(
-                        f"❌ Invalid CSV delimiter. Only comma-separated files are supported."
-                    )
-            except UnicodeDecodeError:
-                try:
-                    uploaded_file.seek(0)
-                    first_line = uploaded_file.readline().decode("latin-1")
-                    if CSV_DELIMITER not in first_line:
-                        raise ValueError(
-                            f"❌ Invalid CSV delimiter. Only comma-separated files are supported."
-                        )
-                except Exception as e:
-                    raise ValueError(
-                        f"❌ CSV encoding error. Please ensure UTF-8 or Latin-1 encoding: {str(e)}"
-                    )
-
-        return True
+        return validate_file(uploaded_file, support_pdf=True)
 
     @staticmethod
     def load_data(uploaded_file) -> pd.DataFrame:

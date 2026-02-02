@@ -25,6 +25,7 @@ import pandas as pd
 from data_loader import DataLoader
 from data_aggregator import DataAggregator
 from agent_telemetry import get_telemetry
+from shared_ui import display_chat_history, display_user_message
 
 # Suppress Pydantic V1 compatibility warning with Python 3.14
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
@@ -585,8 +586,7 @@ Always be precise about column names and values. Ask for clarification if needed
             # Chat input
             if user_input := st.chat_input("Ask about your data (search or stats)"):
                 st.session_state.messages.append({"role": "user", "content": user_input})
-                with st.chat_message("user"):
-                    st.markdown(user_input)
+                display_user_message(user_input)
 
                 with st.chat_message("assistant"):
                     try:

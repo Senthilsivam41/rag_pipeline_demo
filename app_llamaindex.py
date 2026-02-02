@@ -19,6 +19,14 @@ from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 from data_loader_llamaindex import LlamaIndexDataLoader
+from shared_ui import (
+    display_data_summary,
+    display_column_selector,
+    display_filter_section,
+    display_chat_history,
+    display_user_message,
+    display_assistant_response,
+)
 
 # Suppress Pydantic V1 compatibility warning with Python 3.14
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
@@ -89,51 +97,19 @@ def process_tabular_llamaindex(file):
             LlamaIndexDataLoader.preview_data(dataframe)
         with col2:
             summary = LlamaIndexDataLoader.get_data_summary(dataframe)
-            st.subheader("📈 Data Summary")
-            st.metric("Rows", summary["rows"])
-            st.metric("Columns", summary["columns"])
-            st.metric("Memory (MB)", f"{summary['memory_mb']:.2f}")
+            display_data_summary(dataframe, summary)
 
         # Column selection
-        st.subheader("🎯 Select Columns for Indexing")
         all_columns = LlamaIndexDataLoader.get_columns(dataframe)
-        selected_columns = st.multiselect(
-            "Choose columns to include:",
-            all_columns,
-            default=all_columns,
-            key="column_selector"
-        )
+        selected_columns = display_column_selector(all_columns)
         dataframe = LlamaIndexDataLoader.select_columns(dataframe, selected_columns)
 
         # Pre-index filtering
-        with st.expander("🔍 Optional: Filter Data Before Indexing"):
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                filter_column = st.selectbox(
-                    "Column to filter:",
-                    LlamaIndexDataLoader.get_columns(dataframe),
-                    key="filter_column"
-                )
-            with col2:
-                operator = st.selectbox(
-                    "Operator:",
-                    ["==", ">", "<", ">=", "<=", "!="],
-                    key="filter_operator"
-                )
-            with col3:
-                filter_value = st.text_input("Value:", key="filter_value")
-
-            if st.button("Apply Filter"):
-                try:
-                    filter_config = {
-                        "column": filter_column,
-                        "operator": operator,
-                        "value": filter_value
-                    }
-                    dataframe = LlamaIndexDataLoader.apply_filter(dataframe, filter_config)
-                    st.success(f"✅ Filtered to {len(dataframe)} rows")
-                except ValueError as e:
-                    st.error(str(e))
+        dataframe = display_filter_section(
+            dataframe,
+            LlamaIndexDataLoader.get_columns,
+            LlamaIndexDataLoader.apply_filter
+        )
 
         # Create documents and build index
         st.info(f"📍 Indexing {len(dataframe)} rows...")
@@ -212,9 +188,7 @@ if uploaded_file:
         st.session_state.messages = []
 
     # Display chat history
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    display_chat_history(st.session_state.messages)
 
     # Chat input
     if user_input := st.chat_input("Ask about your data"):
@@ -222,8 +196,7 @@ if uploaded_file:
             st.warning("⚠️ Please wait for indexing to complete before asking questions.")
         else:
             st.session_state.messages.append({"role": "user", "content": user_input})
-            with st.chat_message("user"):
-                st.markdown(user_input)
+            display_user_message(user_input)
 
             with st.chat_message("assistant"):
                 try:
