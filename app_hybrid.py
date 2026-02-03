@@ -380,7 +380,7 @@ with st.sidebar:
     st.divider()
     st.info("🤖 Uses agent to choose: semantic search or aggregation")
     st.info("✨ Powered by Ollama + HuggingFace (local, private)")
-    
+
     # Show data schema if available
     if uploaded_file and "dataframe" in st.session_state and st.session_state.dataframe is not None:
         with st.expander("📊 Data Schema", expanded=False):
@@ -390,20 +390,20 @@ with st.sidebar:
             st.write("**Column Types:**")
             for col in df_info.columns:
                 st.write(f"  • {col}: {df_info[col].dtype}")
-            
+
             st.write("**Sample Values:**")
             for col in df_info.columns[:5]:  # Show first 5 columns
                 unique_vals = df_info[col].unique()[:5].tolist()
                 st.write(f"  • {col}: {unique_vals}")
-    
+
     # Telemetry dashboard
     with st.expander("📈 Tool Usage Telemetry", expanded=False):
         if "telemetry" in st.session_state:
             telemetry = st.session_state.telemetry
             summary = telemetry.get_summary()
-            
+
             st.write(f"**Total Tool Calls:** {summary['total_tool_calls']}")
-            
+
             if summary['tool_call_counts']:
                 st.write("**Calls per Tool:**")
                 for tool_name, count in sorted(
@@ -412,7 +412,7 @@ with st.sidebar:
                     reverse=True
                 ):
                     st.write(f"  • {tool_name}: {count}")
-            
+
             if summary['tool_success_rates']:
                 st.write("**Success Rates:**")
                 for tool_name, rate in sorted(
@@ -422,7 +422,7 @@ with st.sidebar:
                 ):
                     pct = rate * 100
                     st.write(f"  • {tool_name}: {pct:.1f}%")
-            
+
             if summary['average_execution_times_ms']:
                 st.write("**Avg Execution Time (ms):**")
                 for tool_name, avg_time in sorted(
@@ -431,7 +431,7 @@ with st.sidebar:
                     reverse=True
                 ):
                     st.write(f"  • {tool_name}: {avg_time:.2f}ms")
-            
+
             # Show recent calls
             st.divider()
             st.write("**Recent Tool Calls:**")
@@ -442,7 +442,7 @@ with st.sidebar:
                     f"{i}. {status_icon} **{call.tool_name}** "
                     f"({call.execution_time_ms:.2f}ms) - {call.timestamp[-8:]}"
                 )
-            
+
             # Clear telemetry button
             if st.button("🗑️ Clear Telemetry"):
                 st.session_state.telemetry.clear()
@@ -468,12 +468,12 @@ if uploaded_file:
 
             # Get available columns for the prompt
             available_columns = list(st.session_state.dataframe.columns)
-            column_info = {col: str(st.session_state.dataframe[col].dtype) 
+            column_info = {col: str(st.session_state.dataframe[col].dtype)
                           for col in available_columns}
 
             # Create tools
             agg_tools = create_aggregation_tools(st.session_state.dataframe)
-            
+
             # Instrument tools with telemetry
             telemetry = st.session_state.telemetry
             instrumented_tools = [
@@ -484,9 +484,9 @@ if uploaded_file:
             llm = ChatOllama(model="llama3.2:1b", temperature=0)
 
             # Create enhanced system prompt with column information
-            column_list = "\n".join([f"  - {col} ({col_type})" 
+            column_list = "\n".join([f"  - {col} ({col_type})"
                                     for col, col_type in column_info.items()])
-            
+
             system_prompt = f"""You are a helpful data analyst assistant with access to employee/demographic data.
 
 IMPORTANT - Before performing any analysis:
@@ -594,7 +594,7 @@ Always be precise about column names and values. Ask for clarification if needed
                         response = agent.invoke({"messages": [
                             {"role": "user", "content": user_input}
                         ]})
-                        
+
                         # Extract answer from response
                         if "messages" in response and response["messages"]:
                             last_message = response["messages"][-1]
@@ -609,7 +609,7 @@ Always be precise about column names and values. Ask for clarification if needed
                         st.session_state.messages.append(
                             {"role": "assistant", "content": answer}
                         )
-                        
+
                         # Display tool usage telemetry
                         telemetry = st.session_state.telemetry
                         latest_call = telemetry.get_latest_call()
@@ -622,7 +622,7 @@ Always be precise about column names and values. Ask for clarification if needed
                                     st.metric("Execution Time", f"{latest_call.execution_time_ms:.2f}ms")
                                 with col3:
                                     st.metric("Status", "✅ Success" if latest_call.success else "❌ Failed")
-                                
+
                                 st.write("**Input:**")
                                 st.code(str(latest_call.tool_input), language="json")
                                 st.write("**Output:**")
@@ -638,7 +638,7 @@ else:
     - 📊 **Data Aggregation** — Sum, average, count, min, max, groupby
     - 🤖 **Intelligent Agent** — LLM chooses the right tool for your question
     - 🔒 **100% Private** — All processing local
-    
+
     ### Example Questions:
     - "What is the sum of sales?"
     - "What is the average salary by department?"

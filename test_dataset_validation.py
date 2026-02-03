@@ -121,7 +121,7 @@ class TestDataLoaderLangChain:
                 break
             except (UnicodeDecodeError, LookupError):
                 continue
-        
+
         assert isinstance(df, pd.DataFrame)
         assert len(df) > 0
         assert len(df.columns) > 0
@@ -270,7 +270,7 @@ class TestDataIntegrity:
                 break
             except (UnicodeDecodeError, LookupError):
                 continue
-        
+
         assert df is not None
         assert len(df.columns) > 0
         assert all(isinstance(col, str) for col in df.columns)
@@ -285,7 +285,7 @@ class TestDataIntegrity:
                 break
             except (UnicodeDecodeError, LookupError):
                 continue
-        
+
         assert df is not None
         assert len(df) > 0
 
@@ -299,7 +299,7 @@ class TestDataIntegrity:
                 break
             except (UnicodeDecodeError, LookupError):
                 continue
-        
+
         assert df is not None
         assert len(df.columns) == len(set(df.columns))
 
@@ -313,7 +313,7 @@ class TestDataIntegrity:
                 break
             except (UnicodeDecodeError, LookupError):
                 continue
-        
+
         assert df is not None
         for col in df.columns:
             # At least one non-null value per column

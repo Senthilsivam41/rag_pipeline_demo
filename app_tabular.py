@@ -7,9 +7,6 @@ using a local, privacy-preserving RAG pipeline powered by Ollama LLM and Hugging
 
 import warnings
 import streamlit as st
-
-# Suppress Pydantic V1 compatibility warning with Python 3.14
-warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
@@ -29,13 +26,9 @@ from shared_ui import (
     display_user_message,
     display_assistant_response,
 )
-from shared_ui import (
-    display_data_summary,
-    display_column_selector,
-    display_filter_section,
-    display_chat_history,
-    display_assistant_response,
-)
+
+# Suppress Pydantic V1 compatibility warning with Python 3.14
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 # --- Page Config ---
 st.set_page_config(page_title="Local Private RAG", page_icon="🔒", layout="wide")
