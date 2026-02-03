@@ -113,4 +113,3 @@ def display_assistant_response(answer, citation_text=None):
     st.markdown(answer)
     if citation_text:
         st.caption(citation_text)
-
