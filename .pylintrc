@@ -1,0 +1,24 @@
+[MASTER]
+# Directories or files to ignore (generated files, data, caches)
+ignore=llamaindex_storage,dataset,__pycache__
+
+[MESSAGES CONTROL]
+# Disable duplicate-code warnings (R0801) project-wide — these matches are intentional/spurious
+disable=duplicate-code
+
+[REPORTS]
+# Turn off the long reports to make CI logs easier to scan
+reports=no
+
+[FORMAT]
+# Keep consistent line length
+max-line-length=100
+
+[SIMILARITIES]
+# Increase detection threshold to reduce spurious matches in common patterns
+# Default is 4 lines; 30 is a stronger threshold to avoid small common blocks being flagged
+min-similarity-lines=30
+# Ignore comments/docstrings and imports when computing similarity
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=yes

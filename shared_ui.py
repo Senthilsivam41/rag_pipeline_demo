@@ -6,11 +6,11 @@ to avoid code duplication.
 import streamlit as st
 
 
-def display_data_summary(dataframe, summary):
+def display_data_summary(_dataframe, summary):
     """Display data summary metrics in Streamlit.
-    
+
     Args:
-        dataframe: The pandas DataFrame being analyzed
+        _dataframe: The pandas DataFrame being analyzed (unused)
         summary: Dictionary with 'rows', 'columns', and 'memory_mb' keys
     """
     st.subheader("📈 Data Summary")
@@ -21,11 +21,11 @@ def display_data_summary(dataframe, summary):
 
 def display_column_selector(all_columns, key_prefix="column_selector"):
     """Display column selection interface.
-    
+
     Args:
         all_columns: List of available column names
         key_prefix: Unique key for this multiselect widget
-        
+
     Returns:
         List of selected columns
     """
@@ -41,12 +41,12 @@ def display_column_selector(all_columns, key_prefix="column_selector"):
 
 def display_filter_section(dataframe, get_columns_func, apply_filter_func):
     """Display optional data filtering interface.
-    
+
     Args:
         dataframe: The pandas DataFrame to filter
         get_columns_func: Function to get list of column names
         apply_filter_func: Function that applies filter to dataframe
-        
+
     Returns:
         Filtered dataframe, or original if no filter applied
     """
@@ -78,13 +78,13 @@ def display_filter_section(dataframe, get_columns_func, apply_filter_func):
                 st.success(f"✅ Filtered to {len(dataframe)} rows")
             except ValueError as e:
                 st.error(str(e))
-    
+
     return dataframe
 
 
 def display_chat_history(messages):
     """Display chat message history.
-    
+
     Args:
         messages: List of message dictionaries with 'role' and 'content'
     """
@@ -95,7 +95,7 @@ def display_chat_history(messages):
 
 def display_user_message(user_input):
     """Display user message in chat.
-    
+
     Args:
         user_input: The user's input text
     """
@@ -105,7 +105,7 @@ def display_user_message(user_input):
 
 def display_assistant_response(answer, citation_text=None):
     """Display assistant response with optional citations.
-    
+
     Args:
         answer: The text response from the assistant
         citation_text: Optional citation/source information
