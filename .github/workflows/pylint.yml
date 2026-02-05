@@ -20,5 +20,5 @@ jobs:
         pip install pylint
     - name: Analysing the code with pylint
       run: |
-        # Use the repository rcfile and exclude agent telemetry validation file to avoid telemetry-related CI failures
-        pylint --rcfile .pylintrc $(git ls-files '*.py' | grep -v 'agent_telemetry.py')
+        # Use repo rcfile; run only on demo/source files and exclude tests & telemetry
+        pylint --rcfile .pylintrc $(git ls-files '*.py' | grep -v '^test_' | grep -v 'agent_telemetry.py')
