@@ -21,6 +21,19 @@ A fully local, privacy-preserving RAG pipeline that processes PDFs and answers q
 
 ---
 
+## 🏗️ Architecture
+
+![Architecture Diagram](Gemini_Generated_Image_aay415aay415aay4.png)
+
+The hybrid RAG system follows a multi-agent architecture:
+- **Fast API** receives user queries
+- **Vector Agent** performs semantic search over embedded documents
+- **Graph Agent** handles structured relationship queries
+- **Fusion Node (RRF)** combines results using Reciprocal Rank Fusion
+- **Results** are returned with citations and sources
+
+---
+
 ## 🛠️ Prerequisites (macOS)
 
 ### 1. **Python 3.11+**

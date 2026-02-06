@@ -12,14 +12,12 @@ import streamlit as st
 from langchain.tools import tool
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_classic.chains.retrieval import create_retrieval_chain
 from langchain_classic.chains.combine_documents.stuff import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.documents import Document
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_react_agent
 import pandas as pd
 
 from data_loader import DataLoader
